@@ -6,14 +6,15 @@ return {
       "nvim-lua/plenary.nvim",
       {
         "nvim-telescope/telescope-fzf-native.nvim",
-        build = "make",
+        build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release'
       }
     },
     config = function()
       require('telescope').setup {
         pickers = {
           find_files = {
-            theme = "ivy"
+            theme = "ivy",
+            follow = true,
           }
         },
         extensions = {
@@ -23,11 +24,16 @@ return {
 
       require('telescope').load_extension('fzf')
 
-      vim.keymap.set("n", "<space>fd", require("telescope.builtin").find_files)
+      vim.keymap.set("n", "<space>fd", function()
+        require("telescope.builtin").find_files({
+          follow = true
+        })
+      end)
       vim.keymap.set("n", "<space>fh", require("telescope.builtin").help_tags)
       vim.keymap.set("n", "<space>en", function()
         require("telescope.builtin").find_files {
           cwd = vim.fn.stdpath("config"),
+          follow = true
         }
       end)
       vim.keymap.set("n", "<space>ep", function()
