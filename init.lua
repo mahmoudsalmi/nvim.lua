@@ -1,9 +1,32 @@
 require("config.lazy")
 
-vim.opt.shiftwidth = 2
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.clipboard = "unnamedplus"
+
+local set = vim.opt
+local tabstop = 2
+
+set.shiftwidth = tabstop
+set.tabstop = tabstop
+set.softtabstop = tabstop
+set.expandtab = true
+set.number = true
+set.relativenumber = true
+set.clipboard = "unnamedplus"
+
+set.foldmethod = "expr"
+set.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+set.foldcolumn = "0"
+set.foldlevel = 99
+set.foldlevelstart = 99
+set.foldtext = ""
+set.foldnestmax = 4
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  group = vim.api.nvim_create_augroup('ms-term-open', { clear = true }),
+  callback = function()
+    vim.opt.number = false
+    vim.opt.relativenumber = false
+  end,
+})
 
 vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
 vim.keymap.set("n", "<space>x", ":.lua<CR>")
@@ -22,17 +45,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
-vim.api.nvim_create_autocmd('TermOpen', {
-  group = vim.api.nvim_create_augroup('ms-term-open', { clear = true }),
-  callback = function()
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-  end,
-})
-
+-- open small terminal
 vim.keymap.set("n", "<space>st", function()
   vim.cmd.vnew()
   vim.cmd.term()
   vim.cmd.wincmd("J")
+  vim.api.nvim_input('i')
   vim.api.nvim_win_set_height(0, 10)
 end)

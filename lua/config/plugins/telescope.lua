@@ -29,6 +29,11 @@ return {
           follow = true
         })
       end)
+      vim.keymap.set("n", "<space>ff", function()
+        require("telescope.builtin").live_grep({
+          follow = true
+        })
+      end)
       vim.keymap.set("n", "<space>fh", require("telescope.builtin").help_tags)
       vim.keymap.set("n", "<space>en", function()
         require("telescope.builtin").find_files {
