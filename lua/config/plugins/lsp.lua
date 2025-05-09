@@ -14,7 +14,9 @@ return {
         },
       },
       'saghen/blink.cmp',
-      'github/copilot.vim'
+      'github/copilot.vim',
+      "mason-org/mason.nvim",
+      "mason-org/mason-lspconfig.nvim",
     },
     config = function()
       local capabilities = require('blink.cmp').get_lsp_capabilities()
@@ -32,6 +34,20 @@ return {
         },
         capabilities = capabilities,
       }
+
+      require 'mason'.setup({
+        ui = {
+          icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+          }
+        }
+      })
+      require 'mason-lspconfig'.setup({
+        ensure_installed = {},
+        automatic_enable = true,
+      })
 
 
       vim.api.nvim_create_autocmd('LspAttach', {
