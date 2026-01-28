@@ -21,19 +21,19 @@ return {
     config = function()
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
-      require 'lspconfig'.lua_ls.setup { capabilities = capabilities }
-      require 'lspconfig'.bashls.setup {
+      vim.lsp.config("lua_ls", { capabilities = capabilities })
+      vim.lsp.config("bashls", {
         filetypes = { 'bash', 'sh', 'zsh' }
-      }
+      })
 
-      require 'lspconfig'.denols.setup {
+      vim.lsp.config("denols", {
         -- Ensure the project is a Deno project by looking for deno config files
         root_dir = require('lspconfig').util.root_pattern("deno.json", "deno.jsonc"),
         init_options = {
           lint = true, -- Enable Deno linting if desired
         },
         capabilities = capabilities,
-      }
+      })
 
       require 'mason'.setup({
         ui = {
