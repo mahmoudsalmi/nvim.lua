@@ -41,6 +41,12 @@ vim.keymap.set("v", "<space>x", ":lua<CR>")
 vim.keymap.set("n", "<M-j>", ":cnext<CR>")
 vim.keymap.set("n", "<M-k>", ":cprev<CR>")
 
+-- Buffer navigation
+vim.keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<space>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
+vim.keymap.set("n", "<space>bb", "<cmd>b#<CR>", { desc = "Alternate buffer" })
+
 vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
 
 vim.api.nvim_create_autocmd('TextYankPost', {
