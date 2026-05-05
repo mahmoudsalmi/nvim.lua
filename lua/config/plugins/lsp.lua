@@ -46,7 +46,10 @@ return {
       })
       require 'mason-lspconfig'.setup({
         ensure_installed = {},
-        automatic_enable = true,
+        -- denols is started manually above; nvim-lspconfig's built-in
+        -- denols.lua uses a nested-table root marker that breaks on
+        -- some nvim 0.12-dev builds (vim.fs.find -> joinpath error).
+        automatic_enable = { exclude = { "denols" } },
       })
 
 
@@ -55,7 +58,7 @@ return {
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if not client then return end
 
-          if client.supports_method('textDocument/formatting') then
+          if client:supports_method('textDocument/formatting') then
             -- Format the current buffer on save
             vim.api.nvim_create_autocmd('BufWritePre', {
               buffer = args.buf,
