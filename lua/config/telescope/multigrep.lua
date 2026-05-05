@@ -4,20 +4,25 @@ local make_entry = require "telescope.make_entry"
 local conf = require "telescope.config".values
 
 --- Telescope extension for live multi-grep
---- This extension provides a way to search for a pattern in the current working directory
---- using ripgrep. The search is live, meaning that the results are updated as you type.
---- The search results are displayed in a floating window.
+--- Prompt syntax: `<pattern>  <glob>` (separated by TWO spaces).
+--- Examples:
+---   TODO
+---   require  *.lua
+---   useState  !**/node_modules/**
 local M = {}
 
---- Live grep options
--- @type LiveGrepOpts
--- @field[opt] cwd string: The current working directory
+-- Returns the closest git repo root, or falls back to cwd
+local function git_root()
+  local result = vim.system({ "git", "rev-parse", "--show-toplevel" }, { text = true }):wait()
+  if result.code == 0 then
+    return vim.trim(result.stdout)
+  end
+  return vim.fn.getcwd()
+end
 
---- Search for a pattern in the current working directory\
--- @param[opt] opts LiveGrepOpts: Options for the search
 local live_mutligrep = function(opts)
   opts = opts or {}
-  opts.cwd = opts.cwd or vim.uv.cwd()
+  opts.cwd = opts.cwd or git_root()
 
   local finder = finders.new_async_job {
     command_generator = function(prompt)
@@ -26,24 +31,26 @@ local live_mutligrep = function(opts)
       end
 
       local pieces = vim.split(prompt, "  ")
-      print("pieces", pieces)
       local args = { "rg" }
-      if pieces[1] then
-        print("pieces[1]", pieces[1])
+
+      if pieces[1] and pieces[1] ~= "" then
         table.insert(args, "-e")
         table.insert(args, pieces[1])
+      else
+        -- no pattern yet, don't run
+        return nil
       end
 
-      if pieces[2] then
-        print("pieces[2]", pieces[2])
+      if pieces[2] and pieces[2] ~= "" then
         table.insert(args, "-g")
         table.insert(args, pieces[2])
       end
 
-      return vim.list_flatten {
-        args,
-        { "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case", "--follow" },
-      }
+      vim.list_extend(args, {
+        "--color=never", "--no-heading", "--with-filename",
+        "--line-number", "--column", "--smart-case", "--follow",
+      })
+      return args
     end,
     entry_maker = make_entry.gen_from_vimgrep(opts),
     cwd = opts.cwd,
@@ -51,16 +58,15 @@ local live_mutligrep = function(opts)
 
   pickers.new(opts, {
     debounce = 100,
-    prompt_title = "Multi Grep",
+    prompt_title = "Multi Grep (" .. opts.cwd .. ")",
     finder = finder,
     previewer = conf.grep_previewer(opts),
     sorter = require("telescope.sorters").empty(),
   }):find()
 end
 
---- Setup the live multi-grep keymap
 M.setup = function()
-  vim.keymap.set("n", "<leader>fg", live_mutligrep)
+  vim.keymap.set("n", "<leader>fg", live_mutligrep, { desc = "Telescope: multigrep (pattern  glob)" })
 end
 
 return M

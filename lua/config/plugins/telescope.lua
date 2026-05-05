@@ -24,17 +24,29 @@ return {
 
       require('telescope').load_extension('fzf')
 
+      -- Returns the closest git repo root, or falls back to cwd
+      local function git_root()
+        local result = vim.system({ "git", "rev-parse", "--show-toplevel" }, { text = true }):wait()
+        if result.code == 0 then
+          return vim.trim(result.stdout)
+        end
+        return vim.fn.getcwd()
+      end
+
       vim.keymap.set("n", "<space>fd", function()
         require("telescope.builtin").find_files({
-          follow = true
+          cwd = git_root(),
+          follow = true,
         })
       end)
       vim.keymap.set("n", "<space>ff", function()
         require("telescope.builtin").live_grep({
-          follow = true
+          cwd = git_root(),
+          follow = true,
         })
       end)
       vim.keymap.set("n", "<space>fh", require("telescope.builtin").help_tags)
+      vim.keymap.set("n", "<space>fb", require("telescope.builtin").buffers, { desc = "Telescope: buffers" })
       vim.keymap.set("n", "<space>en", function()
         require("telescope.builtin").find_files {
           cwd = vim.fn.stdpath("config"),
