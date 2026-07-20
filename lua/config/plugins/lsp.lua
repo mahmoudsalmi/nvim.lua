@@ -26,15 +26,6 @@ return {
         filetypes = { 'bash', 'sh', 'zsh' }
       })
 
-      vim.lsp.config("denols", {
-        -- Ensure the project is a Deno project by looking for deno config files
-        root_dir = require('lspconfig').util.root_pattern("deno.json", "deno.jsonc"),
-        init_options = {
-          lint = true, -- Enable Deno linting if desired
-        },
-        capabilities = capabilities,
-      })
-
       require 'mason'.setup({
         ui = {
           icons = {
@@ -46,11 +37,9 @@ return {
       })
       require 'mason-lspconfig'.setup({
         ensure_installed = {},
-        -- denols is started manually above; nvim-lspconfig's built-in
-        -- denols.lua uses a nested-table root marker that breaks on
-        -- some nvim 0.12-dev builds (vim.fs.find -> joinpath error).
-        -- jdtls is managed by nvim-jdtls (after/ftplugin/java.lua), not lspconfig
-        automatic_enable = { exclude = { "denols", "jdtls" } },
+        -- These servers are started manually from after/ftplugin/ with
+        -- runtime detection (fnm, sdkman) and must not be auto-enabled:
+        automatic_enable = { exclude = { "denols", "ts_ls", "jdtls" } },
       })
 
 
