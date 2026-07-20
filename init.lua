@@ -1,3 +1,15 @@
+-- ── Neovim 0.12-dev compat ──────────────────────────────────────────────────
+-- Some 0.12-dev builds expose vim.text (table) but not vim.text.diff yet.
+-- conform.nvim branches on has("nvim-0.12") and calls vim.text.diff, which
+-- crashes. Bridge it to the still-present vim.diff until the build catches up.
+if vim.fn.has("nvim-0.12") == 1
+  and type(vim.text) == "table"
+  and vim.text.diff == nil
+  and type(vim.diff) == "function"
+then
+  vim.text.diff = vim.diff
+end
+
 -- Disable unused providers
 vim.g.loaded_node_provider = 0
 vim.g.loaded_perl_provider = 0
