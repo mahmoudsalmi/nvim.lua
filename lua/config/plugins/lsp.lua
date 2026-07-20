@@ -49,7 +49,8 @@ return {
         -- denols is started manually above; nvim-lspconfig's built-in
         -- denols.lua uses a nested-table root marker that breaks on
         -- some nvim 0.12-dev builds (vim.fs.find -> joinpath error).
-        automatic_enable = { exclude = { "denols" } },
+        -- jdtls is managed by nvim-jdtls (after/ftplugin/java.lua), not lspconfig
+        automatic_enable = { exclude = { "denols", "jdtls" } },
       })
 
 
