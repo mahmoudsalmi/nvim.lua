@@ -34,6 +34,9 @@ return {
             return require("config.ts_lsp").detect(ctx.dirname).type == "node"
           end,
         },
+        clang_format = {
+          command = "/opt/homebrew/opt/llvm/bin/clang-format",
+        },
       },
 
       -- ── Formatters by filetype ──────────────────────────────────────────────
@@ -47,6 +50,9 @@ return {
         typescriptreact = { "deno_fmt", "eslint", stop_after_first = true },
         javascript      = { "deno_fmt", "eslint", stop_after_first = true },
         javascriptreact = { "deno_fmt", "eslint", stop_after_first = true },
+
+        -- pure c
+        c = { "clang_format" },
       },
 
       -- ── Format on save ──────────────────────────────────────────────────────

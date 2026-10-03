@@ -23,14 +23,14 @@ return {
 
       -- ── Diagnostic display ──────────────────────────────────────────────────
       vim.diagnostic.config({
-        underline    = true,
-        virtual_text = { prefix = "●", source = "if_many" },
-        signs        = true,
+        underline        = true,
+        virtual_text     = { prefix = "●", source = "if_many" },
+        signs            = true,
         update_in_insert = false,
         severity_sort    = true,
-        float = {
+        float            = {
           border = "rounded",
-          source = true,   -- show "eslint", "jdtls", etc. in the float
+          source = true, -- show "eslint", "jdtls", etc. in the float
         },
       })
 
@@ -38,6 +38,16 @@ return {
       vim.lsp.config("bashls", {
         filetypes = { 'bash', 'sh', 'zsh' }
       })
+
+      vim.lsp.config("clangd", {
+        cmd = {
+          "/opt/homebrew/opt/llvm/bin/clangd",
+          "--background-index",
+          "--clang-tidy",
+        },
+      })
+
+      vim.lsp.enable("clangd")
 
       require 'mason'.setup({
         ui = {
@@ -66,23 +76,51 @@ return {
           end
 
           -- ── Diagnostic navigation ─────────────────────────────────────────
-          map("n", "]d", function() vim.diagnostic.jump({ count =  1, float = true }) end, "Next Diagnostic")
+          map("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next Diagnostic")
           map("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev Diagnostic")
-          map("n", "]e", function() vim.diagnostic.jump({ count =  1, float = true, severity = vim.diagnostic.severity.ERROR }) end, "Next Error")
-          map("n", "[e", function() vim.diagnostic.jump({ count = -1, float = true, severity = vim.diagnostic.severity.ERROR }) end, "Prev Error")
-          map("n", "]w", function() vim.diagnostic.jump({ count =  1, float = true, severity = vim.diagnostic.severity.WARN  }) end, "Next Warning")
-          map("n", "[w", function() vim.diagnostic.jump({ count = -1, float = true, severity = vim.diagnostic.severity.WARN  }) end, "Prev Warning")
+          map("n", "]e",
+            function() vim.diagnostic.jump({ count = 1, float = true, severity = vim.diagnostic.severity.ERROR }) end,
+            "Next Error")
+          map("n", "[e",
+            function() vim.diagnostic.jump({ count = -1, float = true, severity = vim.diagnostic.severity.ERROR }) end,
+            "Prev Error")
+          map("n", "]w",
+            function() vim.diagnostic.jump({ count = 1, float = true, severity = vim.diagnostic.severity.WARN }) end,
+            "Next Warning")
+          map("n", "[w",
+            function() vim.diagnostic.jump({ count = -1, float = true, severity = vim.diagnostic.severity.WARN }) end,
+            "Prev Warning")
 
           -- ── Diagnostic display ────────────────────────────────────────────
-          map("n", "<leader>cd", vim.diagnostic.open_float,  "Diagnostic: float")
-          map("n", "<leader>cq", vim.diagnostic.setloclist,  "Diagnostic: location list")
+          map("n", "<leader>cd", vim.diagnostic.open_float, "Diagnostic: float")
+          map("n", "<leader>cq", vim.diagnostic.setloclist, "Diagnostic: location list")
 
-          -- ── LSP actions ───────────────────────────────────────────────────
-          map("n",        "<leader>ca", vim.lsp.buf.code_action,  "Code Action")
-          map("v",        "<leader>ca", vim.lsp.buf.code_action,  "Code Action")
-          map("n",        "<leader>cr", vim.lsp.buf.rename,       "Rename Symbol")
-          map("n",        "<leader>ch", vim.lsp.buf.hover,        "Hover Docs")
-          map("n",        "<leader>cs", vim.lsp.buf.signature_help, "Signature Help")
+          -- ── LSP actions ────────────────────────────────────────────────────
+          map("n", "<leader>ca", vim.lsp.buf.code_action,    "Code Action")
+          map("v", "<leader>ca", vim.lsp.buf.code_action,    "Code Action")
+          map("n", "<leader>cr", vim.lsp.buf.rename,         "Rename Symbol")
+          map("n", "<leader>ch", vim.lsp.buf.hover,          "Hover Docs")
+          map("n", "<leader>cs", vim.lsp.buf.signature_help, "Signature Help")
+
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          
+          -- ── LSP C-Lang navigation ────────────────────────────────────────────────────
+          if client and client.name ~= "clangd" then
+            -- LSP navigation
+            map("n", "gd", vim.lsp.buf.definition,      "Go to Definition")
+            map("n", "gD", vim.lsp.buf.declaration,     "Go to Declaration")
+            map("n", "gi", vim.lsp.buf.implementation,  "Go to Implementation")
+            map("n", "gy", vim.lsp.buf.type_definition, "Go to Type Definition")
+            map("n", "gr", vim.lsp.buf.references,      "Go to References")
+
+            -- clangd-specific
+            map(
+              "n",
+              "<leader>ch",
+              "<cmd>LspClangdSwitchSourceHeader<cr>",
+              "C: Switch Source/Header"
+            )
+          end
 
           -- ── Format ───────────────────────────────────────────────────────
           -- <leader>cf is handled globally by conform.nvim (format.lua)
